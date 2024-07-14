@@ -1,0 +1,142 @@
+package home
+
+import (
+	"fmt"
+	"go-htmx-test/models"
+	"go-htmx-test/web/components"
+	"go-htmx-test/web/layout"
+)
+
+templ home(items []models.Item) {
+	@layout.Base("Home", "A simple CRUD application to demonstrate htmx.") {
+		<div class="py-8 text-center text-3xl">Basic CRUD App</div>
+		<div
+			x-data="{ 
+					selectedItem: { id: 0, name: '' }, 
+					showPutForm: false, 
+					showPatchForm: false, 
+					showDeleteConfirmation: false 
+				}"
+		>
+			@components.Modal("showPutForm", "Add Item") {
+				<form hx-put="/" class="relative w-auto pb-4">
+					@formElements("showPutForm")
+				</form>
+			}
+			@components.Modal("showPatchForm", "Edit Item") {
+				<form hx-patch="/" class="relative w-auto pb-4">
+					@formElements("showPatchForm")
+				</form>
+			}
+			@components.Modal("showDeleteConfirmation", "Delete Item") {
+				<div class="relative w-auto pb-8">
+					<p>Are you sure you want to delete <strong x-text="selectedItem.name"></strong></p>
+				</div>
+				<div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+					<button
+						x-on:click="showDeleteConfirmation = false"
+						type="button"
+						class="rounded-md border px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-neutral-100 focus:ring-offset-2"
+					>
+						Cancel
+					</button>
+					<button
+						hx-delete="/"
+						hx-swap="outerHTML"
+						x-bind:hx-target="'#item-' + selectedItem.id"
+						x-model="selectedItem.id"
+						x-on:click="showDeleteConfirmation = false"
+						name="id"
+						type="button"
+						class="rounded-md border border-transparent bg-red-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2"
+					>
+						Confirm
+					</button>
+				</div>
+			}
+			@itemsDiv(items)
+			<div class="flex justify-center py-2">
+				<button
+					x-on:click="selectedItem = { id: 0, name: '' }; showPutForm = true"
+					class="rounded-lg border border-slate-600 bg-blue-700 p-2 text-center hover:bg-blue-800"
+				>
+					Add Item
+				</button>
+			</div>
+		</div>
+	}
+}
+
+templ itemsDiv(items []models.Item) {
+	<div
+		id="items"
+		hx-swap-oob="beforeend"
+		class="flex flex-col items-center gap-2"
+	>
+		for _, item := range items {
+			@itemDiv(item)
+		}
+	</div>
+}
+
+templ itemDiv(item models.Item) {
+	<div
+		id={ fmt.Sprint("item-", item.ID) }
+		hx-swap-oob="true"
+		x-data="{ showButtons: false }"
+		x-on:mouseenter="showButtons = true"
+		x-on:mouseleave="showButtons = false"
+		class="flex h-14 w-96 items-center justify-between rounded-xl border border-slate-600 bg-gray-800 p-2 hover:bg-gray-700"
+	>
+		<p>{ item.Name }</p>
+		<div>
+			<button
+				x-show="showButtons"
+				x-cloak
+				x-transition
+				x-on:click={ fmt.Sprint("selectedItem = { id: ", item.ID, ", name: `", item.Name, "` }; showPatchForm = true") }
+				class="rounded-lg border border-slate-600 bg-green-700 p-2 hover:bg-green-800"
+			>
+				@components.Pencil()
+			</button>
+			<button
+				x-show="showButtons"
+				x-cloak
+				x-transition
+				x-on:click={ fmt.Sprint("selectedItem = { id: ", item.ID, ", name: `", item.Name, "` }; showDeleteConfirmation = true") }
+				class="rounded-lg border border-slate-600 bg-red-700 p-2 hover:bg-red-800"
+			>
+				@components.Trash()
+			</button>
+		</div>
+	</div>
+}
+
+templ formElements(show string) {
+	<input type="hidden" name="id" x-model="selectedItem.id"/>
+	<div class="flex flex-col space-y-2">
+		<label for="name" class="text-sm font-semibold">Name</label>
+		<input
+			x-model="selectedItem.name"
+			name="name"
+			type="text"
+			class="rounded-lg border border-neutral-600 bg-gray-800 p-2 text-gray-200 focus:outline-none focus:ring-2 focus:ring-neutral-100 focus:ring-offset-2"
+		/>
+	</div>
+	<div class="flex flex-col-reverse pt-2 sm:flex-row sm:justify-end sm:space-x-2">
+		<button
+			x-on:click={ fmt.Sprint(show, " = false") }
+			type="button"
+			class="inline-flex h-10 items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-neutral-100 focus:ring-offset-2"
+		>
+			Cancel
+		</button>
+		<button
+			x-on:click={ fmt.Sprint(show, " = false") }
+			type="submit"
+			class="inline-flex h-10 items-center justify-center rounded-md border border-transparent bg-blue-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2"
+		>
+			Save
+		</button>
+	</div>
+}

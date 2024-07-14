@@ -1,0 +1,41 @@
+package components
+
+import "fmt"
+
+templ Modal(show string, title string) {
+	<div
+		x-show={ show }
+		x-cloak
+		class="fixed left-0 top-0 z-[99] flex h-screen w-screen items-center justify-center"
+	>
+		<div
+			x-show={ show }
+			x-transition:enter="ease-out duration-300"
+			x-transition:enter-start="opacity-0"
+			x-transition:enter-end="opacity-100"
+			x-transition:leave="ease-in duration-300"
+			x-transition:leave-start="opacity-100"
+			x-transition:leave-end="opacity-0"
+			x-on:click={ fmt.Sprint(show, " = false") }
+			class="absolute inset-0 h-full w-full bg-gray-800 bg-opacity-70 backdrop-blur-sm"
+		></div>
+		<div
+			x-show={ show }
+			x-transition:enter="ease-out duration-300"
+			x-transition:enter-start="opacity-0 -translate-y-2 sm:scale-95"
+			x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+			x-transition:leave="ease-in duration-200"
+			x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+			x-transition:leave-end="opacity-0 -translate-y-2 sm:scale-95"
+			class="relative w-full border border-neutral-600 bg-gray-900 px-7 py-6 shadow-lg sm:max-w-lg sm:rounded-lg"
+		>
+			<div class="flex items-center justify-between pb-3">
+				<h3 class="text-lg font-semibold">{ title }</h3>
+				<button x-on:click={ fmt.Sprint(show, " = false") } class="absolute right-0 top-0 mr-5 mt-5 flex h-8 w-8 items-center justify-center rounded-full text-gray-500 hover:bg-gray-600 hover:text-gray-800">
+					<i data-lucide="X"></i>
+				</button>
+			</div>
+			{ children... }
+		</div>
+	</div>
+}

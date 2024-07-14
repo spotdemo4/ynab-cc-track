@@ -1,0 +1,27 @@
+services:
+  go-htmx-test:
+    container_name: go-htmx-test
+    build:
+      context: .
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      - PORT=${PORT}
+      - DB_HOST=go-htmx-test-db
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - TZ=${TZ}
+    depends_on:
+      - go-htmx-test-db
+    restart: unless-stopped
+
+  go-htmx-test-db:
+    container_name: go-htmx-test-db
+    image: postgres
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    restart: unless-stopped

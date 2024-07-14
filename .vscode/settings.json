@@ -1,0 +1,13 @@
+{
+    "files.exclude": {
+        "**/*templ.go": true
+    },
+    "tailwindCSS.includeLanguages": {
+        "templ": "html"
+    },
+    "editor.formatOnSave": true,
+    "[templ]": {
+        "editor.defaultFormatter": "a-h.templ"
+    },
+    "alpine-intellisense.settings.languageScopes": "html,templ"
+}
